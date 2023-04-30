@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  namespace: argocd
+  name: rickroller
+  # Perform a cascading delete of the Application's resources when the App is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: demo # you could also use the "default" project if you want
+  source:
+    repoURL: https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+    path: helmfile       # directory of the helmfile.yaml
+    targetRevision: HEAD # use the default branch of the repo
+  destination:
+    namespace: rickroller
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    # Make Argo CD automatically apply changes without human intervention
+    automated:
+      prune: true    # delete resources when they are no longer in git
+      selfHeal: true # perform a sync when the cluster deviates from the state defined in Git (e.g. manual changes)
+    syncOptions:
+      - CreateNamespace=true # required to also create namespace

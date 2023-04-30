@@ -1,0 +1,26 @@
+releases:
+  - name: rickroller
+    chart: ../helm/rickroller
+    needs: [mongodb]
+    values:
+      - replicas: 1
+        env:
+          DATABASE_URL: mongodb://myuser:mypass@mongodb/mydb
+
+  - name: mongodb
+    chart: bitnami/mongodb
+    version: 13.9.1
+    values:
+      - auth:
+          rootPassword: root
+          usernames: [myuser]
+          passwords: [mypass]
+          databases: [mydb]
+        persistence:
+          enabled: false
+          storageClass: longhorn
+          size: 1Gi
+
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami

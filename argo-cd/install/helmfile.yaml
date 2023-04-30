@@ -1,0 +1,25 @@
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: argocd
+    namespace: argocd
+    labels:
+      app: argocd
+    chart: argo/argo-cd
+    version: ~5.28.2
+    values:
+      - repoServer:
+          extraContainers:
+            - name: plugin
+              image: lucj/argocd-plugin-helmfile:v0.0.11
+              command: ["/var/run/argocd/argocd-cmp-server"]
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 999
+              volumeMounts:
+                - mountPath: /var/run/argocd
+                  name: var-files
+                - mountPath: /home/argocd/cmp-server/plugins
+                  name: plugins

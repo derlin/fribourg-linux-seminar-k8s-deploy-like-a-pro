@@ -1,0 +1,46 @@
+environments:
+  # we will use the default environment as our sandbox
+  default:
+  dev:
+  prod:
+    # we can also have values, which will be available
+    # in helmfile templates as .Values
+    values:
+      - mongoPassword: very-strong-password
+
+---
+
+releases:
+  - name: rickroller
+    chart: ../helm/rickroller
+    needs: [mongodb]
+    values:
+      - replicas: 1
+        env:
+          # pass an empty database url in the default environment
+          DATABASE_URL: {{ ternary "" "mongodb://myuser:mypass@mongodb/mydb" 
+            (eq .Environment.Name "default")  }}
+
+  - name: mongodb
+    chart: bitnami/mongodb
+    version: 13.9.1
+    # Only install mongodb in non-default environment
+    installed: {{ ne .Environment.Name "default" }}
+    values:
+      - auth:
+          rootPassword: root
+          usernames: [myuser]
+          passwords:
+            # read the password from environment values, if provided
+            - {{ .Values | get "mongoPassword" "mypass" }}
+          databases: [mydb]
+        persistence:
+          # enable persistence for prod only
+          enabled: {{ eq .Environment.Name "prod" }}
+          storageClass: longhorn
+          size: 1Gi
+
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+

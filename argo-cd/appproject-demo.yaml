@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: demo
+  namespace: argocd
+  # Finalizer that ensures that project is not deleted until it is not referenced by any application
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Demo project to host rickroller
+  # Allow manifests to deploy from any Git repos that are mine
+  sourceRepos:
+    - "https://github.com/derlin/*"
+  destinations:
+    # Do not allow any app to be installed in `kube-system` or `argocd`
+    - namespace: '!kube-system'
+      server: "*"
+    - namespace: '!argocd'
+      server: '*'
+    # Other destinations are fine though
+    - namespace: '*'
+      server: '*'
+  # Limit what resources an app is allowed to create
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Pod
+    - group: apps
+      kind: ReplicaSet
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: ""
+      kind: Service
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: Role
+    - group: ""
+      kind: RoleBinding
+    - group: ""
+      kind: PersistentVolume
+    - group: ""
+      kind: PersistentVolumeClaim

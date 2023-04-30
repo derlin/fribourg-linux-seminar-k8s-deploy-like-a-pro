@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rickroller
+spec:
+  replicas: 1 # number of desired pods
+  selector:
+    matchLabels: # <-
+      app: rickroller
+  template: # template used to create the ReplicaSet the pods
+    metadata:
+      labels:
+        app: rickroller # <-
+    spec:
+      containers:
+        - image: derlin/rickroller:latest
+          name: rickroller
+          ports:
+            - containerPort: 8080

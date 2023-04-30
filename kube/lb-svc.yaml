@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rickroller
+spec:
+  type: LoadBalancer
+  # ↓ to which pod should we redirect traffic
+  selector:
+    app: rickroller
+  ports:
+    - port: 80  # service port
+      targetPort: 8080  # port of the container

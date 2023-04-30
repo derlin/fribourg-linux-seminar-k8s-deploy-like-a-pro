@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rickroller
+spec:
+  selector:
+    app: rickroller
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080

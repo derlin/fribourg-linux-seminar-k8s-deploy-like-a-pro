@@ -1,0 +1,12 @@
+apiVersion: v2
+name: rickroller
+description: Deploy rickroller the easy way
+type: application
+
+version: 0.1.0
+appVersion: latest
+
+# dependencies:
+#   - name: mongodb
+#     version: 13.9.1
+#     repository: "@bitnami"
