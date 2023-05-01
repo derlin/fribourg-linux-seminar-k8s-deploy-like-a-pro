@@ -16,6 +16,10 @@ Application deployments can track updates to branches, tags, or pinned to a spec
 Argo CD needs to be installed on a Kubernetes cluster, and can from there drive other clusters (multi-clusters support).
 This is a very powerful pattern that is used by many organizations to manage complex infrastructures.
 
+!!! note
+
+    Another great contender of Argo CD is [Flux CD](https://fluxcd.io).
+
 ## Argo CD and helmfile
 
 There is sadly **no built-in support for helmfile**, despite an [open issue](https://github.com/argoproj/argo-cd/issues/2143) from August 2019.

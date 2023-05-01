@@ -1,6 +1,6 @@
 # Helmfile for deploying rickroller
 
-Learn more about helmfile at helmfile.readthedocs.io/.
+Learn more about helmfile at https://helmfile.readthedocs.io/.
 
 To deploy rickroller, install helmfile and use:
 ```bash

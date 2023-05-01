@@ -42,6 +42,7 @@ nav:
   - Helm: 02-helm.md
   - Helmfile: 03-helmfile.md
   - Argo CD: 04-argo.md
+  - Summary: 05-summary.md
 
 markdown_extensions:
 

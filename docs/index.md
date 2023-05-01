@@ -1,3 +1,18 @@
+*Want to learn Kubernetes and how to deploy a containerized application on it?<br>
+You're in the right place!*
+
+In this pages, we will learn how to deploy containerized applications
+on Kubernetes. We will talk about Kubernetes Manifests, Helm Charts, helmfile, and Argo CD.
+Ready? Let's get started!
+
+!!! warning "Important"
+
+    This website/tutorial has been set up for my presentation at the
+    *24th Fribourg Linux Seminar: Kubernetes and Friends* hosted in Fribourg on **May 11th, 2023**.
+    It may be outdated by the time you read it. Find the versions used later in this page.
+
+## Kubernetes
+
 In a single sentence:
 
 !!! quote
@@ -27,6 +42,7 @@ how to deploy an application on Kubernetes.
 <div align=center>
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/PziYflu8cB8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </div>
+
 ## Requirements
 
 Here are the tools we will use, and the versions I played with:
