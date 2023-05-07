@@ -174,8 +174,8 @@ You should now see the app under *Applications*. Watch how Argo CD syncs all res
 
     You can perform the same operations (and more, such as syncing) using the `argocd` CLI. As an example, here is how you could create
     the rickroller App from the terminal:
-    ```yaml
-    --8<-- "argo-cd/app-rickroller.sh"
+    ```yaml title="argo-cd/rickroller-app.sh"
+    --8<-- "argo-cd/rickroller-app.sh"
     ```
 
 

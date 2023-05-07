@@ -139,56 +139,6 @@ module "ingress_nginx" {
 #   namespace    = "argocd"
 # }
 
-# data "http" "ingress_nginx" {
-#   url = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml"
-# }
-
-# data "kubectl_file_documents" "ingress_nginx" {
-#   content = data.http.ingress_nginx.response_body
-# }
-
-# resource "kubectl_manifest" "demo_ingress_controller_ns" {
-#   # This needs to be in a specific resource, so we can use depends_on
-#   yaml_body = <<YAML
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: ingress-nginx
-# YAML
-# }
-
-# resource "kubectl_manifest" "demo_ingress_controller" {
-#   # Omit the namespace (created separately), because the order is not garanteed
-#   for_each = {
-#     for k, v in data.kubectl_file_documents.ingress_nginx.manifests : k => v
-#     if k != "/api/v1/namespaces/ingress-nginx"
-#   }
-#   yaml_body = each.value
-#   wait      = true
-
-#   depends_on = [
-#     kubectl_manifest.demo_ingress_controller_ns # ensure the namespace exists
-#   ]
-# }
-
-# ingress controller (Helm) -- very slow! Around 2 minutes to deploy
-# provider "helm" {
-#   kubernetes {
-#     config_path = local_sensitive_file.demo_sks_kubeconfig_file.filename
-#   }
-# }
-
-# resource "helm_release" "nginx_ingress" {
-#   name = "ingress-nginx"
-
-#   repository = "https://kubernetes.github.io/ingress-nginx"
-#   chart      = "ingress-nginx"
-#   namespace  = "ingress-nginx"
-# }
-
-
-
-
 # Outputs
 
 output "demo_sks_kubeconfig" {
