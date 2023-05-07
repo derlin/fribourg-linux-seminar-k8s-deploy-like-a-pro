@@ -40,6 +40,23 @@ Copy and paste the output in your terminal, something like:
 export KUBECONFIG=...; kubectl cluster-info
 ```
 
+Finally, install the Nginx Ingress Controller by running:
+```bash
+## Ensure you exported KUBECONFIG=... first!
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml
+```
+
+(The Nginx Ingress Controller was initially installed in terraform - see `terraform/main.tf`,
+but the destroy often fails, so better to do it manually.)
+
+!!! warning "Don't forget to stop the cluster"
+
+    Once you finished experimenting, don't forget to destroy your cluster
+    to avoid unecessary costs:
+    ```bash
+    terraform destroy -auto-approve
+    ```
+
 ## What composes a Kubernetes cluster?
 
 Kubernetes is a distributed system that consists of two main components: the control plane and the nodes.
@@ -119,7 +136,7 @@ Additionally, Exoscale's SKS automatically installs:
 * [Metrics server](https://github.com/kubernetes-sigs/metrics-server): an agent that collects resource metrics
   from Kubelets and exposes them through the Kubernetes API server (`kubectl top`).
 
-But this is not all! The terraform script also adds:
+But this is not all! The terraform script also potentially adds (see comments in `terraform/main.tf`):
 
 * The [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/): to provide extrernal
   access and manage routes (i.e. `Ingress`) based on hosts, path prefix, etc.

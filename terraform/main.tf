@@ -123,10 +123,13 @@ provider "kubectl" {
   config_path = local_sensitive_file.demo_sks_kubeconfig_file.filename
 }
 
-module "ingress_nginx" {
-  source       = "./modules/kapply"
-  manifest_url = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml"
-}
+## UNCOMMENT TO INSTALL (beware: the destroy often fails, don't know why...)
+# Or use kubectl apply -f <manifest_url> / kubectl delete -f <manifest_url>
+
+# module "ingress_nginx" {
+#   source       = "./modules/kapply"
+#   manifest_url = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml"
+# }
 
 # module "longhorn" {
 #   source       = "./modules/kapply"
