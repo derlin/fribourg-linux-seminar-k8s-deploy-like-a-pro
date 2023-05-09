@@ -70,7 +70,12 @@ it simple:
 3. Rickroller serves the resulting HTML back to the user
 4. The user can copy the URL of 3 and send it to his friends, waiting for them to get surprised.
 
-!!! tip "Live demo ⮕ [https://rroll.derlin.ch](https://rroll.derlin.ch)"
+!!! tip "Test it!" 
+
+    A live demo is available at ⮕ [**https://tinyurl.eu.aldryn.io**](https://tinyurl.eu.aldryn.io)
+    
+    For the curious, it is deployed by **[Divio](https://divio.com)**, which is awesome :blue_heart:.
+    Check it out!
 
 By default, the URL generated in 3 will use the hash of the original URL, which can be quite long
 (and thus suspicious).
