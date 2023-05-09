@@ -1,8 +1,12 @@
 *Want to learn Kubernetes and how to deploy a containerized application on it?<br>
 You're in the right place!*
 
-In this pages, we will learn how to deploy containerized applications
-on Kubernetes. We will talk about Kubernetes Manifests, Helm Charts, helmfile, and Argo CD.
+Join me for a journey starting on the basics of Kubernetes, including pods, deployments, and manifests.
+I'll then show you how to package your app for the cloud with [Helm](https://helm.sh).
+And because a single app doesn't do much, we'll turn to [helmfile](https://helmfile.readthedocs.io/) for assistance.
+Lastly, I'll mention the importance of GitOps, and demonstrate how [Argo CD](https://argo-cd.readthedocs.io/en/stable/)
+can be used to automate deployments and streamline changes.
+
 Ready? Let's get started!
 
 !!! warning "Important"

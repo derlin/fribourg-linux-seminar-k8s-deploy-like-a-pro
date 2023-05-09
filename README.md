@@ -6,6 +6,14 @@ You're in the right place!
 > This website/tutorial has been set up for my presentation at the 
 > *24th Fribourg Linux Seminar: Kubernetes and Friends* hosted in Fribourg on **May 11th, 2023**.
 
+Talk summary:
+
+> "Join me for a presentation starting on the basics of Kubernetes, including pods, deployments, and manifests.
+> I'll then show you how to package your app for the cloud with Helm. And because a single app doesn't do much,
+> we'll turn to helmfile for assistance. Lastly, I'll mention the importance of GitOps,
+> and demonstrate how ArgoCD can be used to automate deployments and streamline changes.
+> Don't miss this opportunity to level up your Kubernetes deployment game!
+
 In this tutorial, we will learn how to deploy the [rickroller](https://github.com/derlin/rickroller)
 application to Kubernetes. You can use either a local [K3d](https://k3d.io) cluster or a
 [Scalable Kubernetes Service (SKS)](
