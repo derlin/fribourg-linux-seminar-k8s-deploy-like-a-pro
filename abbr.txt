@@ -1,0 +1,24 @@
+# Content of my ~/.config/zsh-abbr/user-abbreviations before the demo
+# See https://github.com/olets/zsh-abbr
+
+abbr exo="export KUBECONFIG=~/git/fribourg-linux-seminar-k8s-deploy-like-a-pro/terraform/kubeconfig;"
+abbr root="cd ~/git/fribourg-linux-seminar-k8s-deploy-like-a-pro"
+
+abbr y="dyff yaml"
+abbr k="kubectl"
+abbr kap="kubectl apply -f"
+
+abbr ns="kubectl create ns test; kubens test"
+abbr pf="kubectl port-forward pod/rickroller 8080"
+abbr scale="kubectl scale deploy rickroller --replicas=3"
+abbr rollout="kubectl rollout undo deploy rickroller"
+abbr delk="kubectl delete deploy rickroller; kubectl delete svc rickroller; kubectl delete ingress rickroller"
+
+abbr hi="helm install rickroller ."
+abbr delh="helm uninstall rickroller mongodb"
+abbr mongo="helm upgrade --install mongodb bitnami/mongodb --set architecture=standalone --set 'auth.usernames[0]=myuser' --set 'auth.passwords[0]=mypass' --set 'auth.databases[0]=mydb' --set persistence.enabled=false"
+abbr rmongo="helm upgrade rickroller . --set env.DATABASE_URL='mongodb://myuser:mypass@mongodb/mydb'"
+
+abbr hf="helmfile"
+
+abbr argo="kubectl port-forward -n argocd svc/argocd-server 8888:80"
