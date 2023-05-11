@@ -7,7 +7,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default # you could also use the "default" project if you want
+  project: demo # you could also use the "default" project if you want
   source:
     repoURL: https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
     path: helmfile       # directory of the helmfile.yaml

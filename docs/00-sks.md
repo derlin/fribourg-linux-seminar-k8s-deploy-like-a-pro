@@ -54,8 +54,14 @@ but the destroy often fails, so better to do it manually.)
     Once you finished experimenting, don't forget to destroy your cluster
     to avoid unecessary costs:
     ```bash
+    # Uninstall Nginx Ingress Controller first,
+    # or the load balancer on exoscale will stay there and cost you
+    kubectl destroy -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml
+    # Then destroy the cluster
     terraform destroy -auto-approve
     ```
+    Always go to the Exoscale Console and ensure there is no remaining Load Balancers.
+    You never know, and load balancers are expensive!
 
 ## What composes a Kubernetes cluster?
 
