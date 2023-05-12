@@ -22,6 +22,8 @@ https://community.exoscale.com/documentation/sks) from [Exoscale](https://exosca
 
 ✨✨ ⮕ https://derlin.github.io/fribourg-linux-seminar-k8s-deploy-like-a-pro/
 
+The slides of the presentation are in this repo ⮕ [presentation.pdf](presentation.pdf).
+
 ## Structure
 
 * `terraform` → terraform module to spawn an SKS cluster on Exoscale
