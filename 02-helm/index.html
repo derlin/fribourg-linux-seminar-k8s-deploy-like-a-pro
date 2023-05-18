@@ -1,0 +1,915 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn about Kubernetes from a developer point of view, and how to deploy your apps with style.">
+      
+      
+        <meta name="author" content="Lucy Linder, akka derlin">
+      
+      
+      
+        <link rel="prev" href="../01-deploy-raw/">
+      
+      
+        <link rel="next" href="../03-helmfile/">
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.13">
+    
+    
+      
+        <title>Helm - A Cool Kids Guide to deploy on Kubernetes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-is-helm" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-header__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            A Cool Kids Guide to deploy on Kubernetes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Helm
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_3" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_3">
+            
+              <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-nav__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    A Cool Kids Guide to deploy on Kubernetes
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-sks/" class="md-nav__link">
+        The Cluster
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-deploy-raw/" class="md-nav__link">
+        Manifests
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Helm
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Helm
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-helm" class="md-nav__link">
+    What is Helm?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helm-chart-basics" class="md-nav__link">
+    Helm Chart basics
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-a-helm-chart" class="md-nav__link">
+    Working with a Helm Chart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-charts-from-a-repository" class="md-nav__link">
+    Using charts from a repository
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-subcharts" class="md-nav__link">
+    Using subcharts
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-helmfile/" class="md-nav__link">
+        Helmfile
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-argo/" class="md-nav__link">
+        Argo CD
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-summary/" class="md-nav__link">
+        Summary
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-helm" class="md-nav__link">
+    What is Helm?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helm-chart-basics" class="md-nav__link">
+    Helm Chart basics
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-a-helm-chart" class="md-nav__link">
+    Working with a Helm Chart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-charts-from-a-repository" class="md-nav__link">
+    Using charts from a repository
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-subcharts" class="md-nav__link">
+    Using subcharts
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Helm</h1>
+
+<p>Now that rickroller is deployed, how would you:</p>
+<ul>
+<li>rename all resources to <code>roller</code> instead of <code>rickroller</code>?</li>
+<li>add labels to all resources to have <code>author=lucy</code>?</li>
+<li>delete the whole rickroller application?</li>
+<li>give the app to a friend so that he can deploy it on his Kubernetes cluster, which potentially
+  doesn't use the same version, ingress controller, etc.?</li>
+</ul>
+<p>With YAML files, there is no magic: we should go through all, make modifications, and re-apply all of them
+one by one. To delete the app, we should go through many <code>kubectl delete</code> and ensure we do not forget one.
+Everything is tedious: there is no logical grouping, no customization, no code reuse, nothing.</p>
+<p>Enter <a href="https://helm.sh">Helm</a>!</p>
+<h2 id="what-is-helm">What is Helm?<a class="headerlink" href="#what-is-helm" title="Permanent link">&para;</a></h2>
+<p>Helm is a <strong>package **manager</strong> for Kubernetes**. From <a href="https://helm.sh">Helm homepage</a>:</p>
+<blockquote>
+<p>Helm helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
+Charts are easy to create, version, share, and publish — so start using Helm and stop the copy-and-paste.</p>
+</blockquote>
+<h2 id="helm-chart-basics">Helm Chart basics<a class="headerlink" href="#helm-chart-basics" title="Permanent link">&para;</a></h2>
+<p>To get started with Helm, create a new directory with the following structure:
+<div class="highlight"><pre><span></span><code>example
+├──<span class="w"> </span>Chart.yaml<span class="w">   </span><span class="c1"># metadata</span>
+├──<span class="w"> </span>values.yaml<span class="w">  </span><span class="c1"># parameters</span>
+└──<span class="w"> </span>templates<span class="w">    </span><span class="c1"># templates</span>
+<span class="w">    </span>└──<span class="w"> </span>...
+</code></pre></div></p>
+<p>Let's add the following content:
+<div class="highlight"><span class="filename">Chart.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2</span><span class="w"> </span><span class="c1"># Helm version</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic example chart</span><span class="w"> </span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span>
+</code></pre></div></p>
+<div class="highlight"><span class="filename">templates/example.yaml</span><pre><span></span><code><span class="nt">some</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yaml</span>
+</code></pre></div>
+<p>Now, the directory has become a helm chart. Let's see how it works by running the following at the root of the chart directory:
+<div class="highlight"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">helm template .</span>
+<span class="nn">---</span>
+<span class="c1"># Source: example/templates/example.yaml</span>
+<span class="nt">some</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yaml</span>
+</code></pre></div></p>
+<p>Okay, so a Helm chart outputs the content of the files inside the <code>templates</code> directory. So why all the fuss?
+Well, the power of Helm comes from its <strong>templating capabilities</strong> based on Go template.
+Helm has over 60 available functions. Some of them are defined by the <a href="https://godoc.org/text/template">Go template language</a> itself,
+and most of the others are part of the <a href="https://masterminds.github.io/sprig/">Sprig template library</a>.</p>
+<p>Inside a go template, we have access to multiple contextual information coming from different sources. Let's see it in action.</p>
+<p>Replace your template with the following content:
+<div class="highlight"><span class="filename">templates/example.yaml</span><pre><span></span><code><span class="c1"># &quot;.&quot; is the root context, </span><span class="cp">{{</span> <span class="cp">}}</span><span class="c1"> denotes a go template expression</span>
+<span class="cp">{{</span> <span class="err">.</span> <span class="o">|</span> <span class="nf">toYaml</span> <span class="cp">}}</span>
+</code></pre></div></p>
+<p>Let's template the chart again: <code>helm template .</code>. You should see:
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="c1"># Source: example/templates/example.yaml</span>
+<span class="nt">Capabilities</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">APIVersions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">HelmVersion</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">git_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">912ebc1cd10d38d340f048efaf0abda047c3468e</span>
+<span class="w">    </span><span class="nt">git_tree_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clean</span>
+<span class="w">    </span><span class="nt">go_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">go1.20.2</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v3.11.2</span>
+<span class="w">  </span><span class="nt">KubeVersion</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">Major</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">    </span><span class="nt">Minor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;26&quot;</span>
+<span class="w">    </span><span class="nt">Version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.26.0</span>
+<span class="nt">Chart</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">IsRoot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic example chart</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span>
+<span class="nt">Files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">Release</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">IsInstall</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">IsUpgrade</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">release-name</span>
+<span class="w">  </span><span class="nt">Namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
+<span class="w">  </span><span class="nt">Revision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Helm</span>
+<span class="nt">Subcharts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">Template</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">BasePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example/templates</span>
+<span class="w">  </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example/templates/example.yaml</span>
+<span class="nt">Values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</code></pre></div></p>
+<p>To break it down, this is everything you can query from a go template:</p>
+<ul>
+<li><code>.Capabilities</code>: the API resources available in the cluster you are currently connected to.
+  This let's you customize your output depending on the k8s cluster (using <code>if/else</code> etc.)</li>
+<li><code>.Chart</code>: information from your <code>Chart.yaml</code> file, including the current version of the chart, etc.</li>
+<li><code>.Files</code>: additional files in the helm chart directory, that you could read and use in your templates</li>
+<li><code>.Release</code>: the name, namespace etc. of the helm chart <em>as it is being installed</em></li>
+<li><code>.Subcharts</code>: helm charts can include other charts (we will talk about this later)</li>
+<li><code>.Template</code>: template files information</li>
+<li><code>.Values</code>: content of <code>values.yaml</code></li>
+</ul>
+<p>The most useful are <code>.Release</code> and <code>.Values</code>. Whatever you put in your <code>values.yaml</code> will be available
+in the templates. They act as <em>the parameters</em> to the templates and let you customize the helm chart at
+install time. </p>
+<p>To better understand the <code>.Values</code>, add this:
+<div class="highlight"><span class="filename">values.yaml</span><pre><span></span><code><span class="nt">hello</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">world</span>
+</code></pre></div>
+Now, run the following two commands:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>template<span class="w"> </span>.<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-2
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code><span class="nt">Values</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hello</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">world</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>template<span class="w"> </span>.<span class="w"> </span>--set<span class="w"> </span><span class="nv">hello</span><span class="o">=</span><span class="s1">&#39;Fribourg!&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-2
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code><span class="nt">Values</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hello</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fribourg!</span>
+</code></pre></div></p>
+<p>Helm charts are thus a bunch of templates that should output valid Kubernetes Manifests files (as YAML)
+based on the parameters initially defined in <code>values.yaml</code> but overridable from the command line.</p>
+<p>Valus are overridable from the command line using <code>--set</code>, or from a YAML file using <code>--values &lt;file&gt;</code>.
+The content of the provided file will be <em>merged</em> with the content of the <code>values.yaml</code>, with precedence
+to the former.</p>
+<div class="admonition warning">
+<p>Be careful! YAML merge works great with dictionaries, but not with lists: list are
+completely <em>replaced</em>, the items are not merged.</p>
+</div>
+<details class="note">
+<summary>A more accurate example</summary>
+<p>To have a valid helm chart, you could replace the content of <code>templates/example.yaml</code> with the following:
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="cp">{{</span> <span class="nv">.Release.Name</span> <span class="cp">}}</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="cp">{{</span> <span class="nv">.Values.replicas</span> <span class="o">|</span> <span class="nf">default</span> <span class="m">1</span> <span class="cp">}}</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"> </span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="cp">{{</span> <span class="nv">.Release.Name</span> <span class="cp">}}</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="cp">{{</span> <span class="nv">.Release.Name</span> <span class="cp">}}</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">image: derlin/rickroller</span><span class="p">:</span><span class="cp">{{</span> <span class="nv">.Values.tag</span> <span class="o">|</span> <span class="nf">default</span> <span class="s2">&quot;latest&quot;</span> <span class="cp">}}</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="cp">{{</span> <span class="nv">.Release.Name</span> <span class="cp">}}</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div></p>
+<p>You can now play with it, setting e.g. the values <code>--set replicas=2</code> or <code>--set tag=1.0.0</code>.</p>
+</details>
+<h2 id="working-with-a-helm-chart">Working with a Helm Chart<a class="headerlink" href="#working-with-a-helm-chart" title="Permanent link">&para;</a></h2>
+<p>Of course, real helm charts are quite complex and necessitate getting acquainted with the go template
+syntax. To get started, you can try using the <code>helm create</code> function.
+For the next examples, I already created a Helm chart (using <code>helm create</code> as a base) for rickroller
+that you can find in the <code>helm/rickroller</code> directory. Assume all the next commands are run from there.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>I suggest you create a new namespace for your tests with Helm.</p>
+</div>
+<p>Now that rickroller is packaged with helm, we can install it in our cluster using:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>roller<span class="w"> </span>.
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>Release<span class="w"> </span><span class="s2">&quot;roller&quot;</span><span class="w"> </span>does<span class="w"> </span>not<span class="w"> </span>exist.<span class="w"> </span>Installing<span class="w"> </span>it<span class="w"> </span>now.
+NAME:<span class="w"> </span>roller
+LAST<span class="w"> </span>DEPLOYED:<span class="w"> </span>Mon<span class="w"> </span>Apr<span class="w"> </span><span class="m">17</span><span class="w"> </span><span class="m">15</span>:43:16<span class="w"> </span><span class="m">2023</span>
+NAMESPACE:<span class="w"> </span>example
+STATUS:<span class="w"> </span>deployed
+REVISION:<span class="w"> </span><span class="m">1</span>
+NOTES:
+<span class="m">1</span>.<span class="w"> </span>Get<span class="w"> </span>the<span class="w"> </span>application<span class="w"> </span>URL<span class="w"> </span>by<span class="w"> </span>running<span class="w"> </span>these<span class="w"> </span>commands:
+<span class="w">  </span>http:///roller<span class="o">(</span>/<span class="p">|</span>$<span class="o">)(</span>.*<span class="o">)</span>
+</code></pre></div></p>
+<p>Now, you can run the following:</p>
+<ul>
+<li><code>helm list</code> → roller is installed</li>
+<li><code>helm upgrade roller . --set replicas=2</code> → scale to 2</li>
+<li><code>helm rollback roller</code> → we are back to the first revision with one replica</li>
+<li><code>helm history roller</code> → we have 3 revisions: one install, one upgrade, and a rollback</li>
+<li><code>helm uninstall roller</code> → completely uninstalls everything.</li>
+</ul>
+<p>You want to not use an ingress, but a service of type <code>LoadBalancer</code> (as we did previously) instead?
+Easy:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>roller<span class="w"> </span>.<span class="w"> </span>--set<span class="w"> </span>ingress.enabled<span class="o">=</span><span class="nb">false</span><span class="w"> </span>--set<span class="w"> </span>service.type<span class="o">=</span>LoadBalancer
+</code></pre></div></p>
+<h2 id="using-charts-from-a-repository">Using charts from a repository<a class="headerlink" href="#using-charts-from-a-repository" title="Permanent link">&para;</a></h2>
+<p>So far, we used a local chart. Let's use helm now to deploy MongDB from bitnami.
+First, add the repo so your machine knows how to fetch bitnami charts:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>bitnami<span class="w"> </span>https://charts.bitnami.com/bitnami
+</code></pre></div>
+<p>Now, install mongodb with an initial database, username and password:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>mongodb<span class="w"> </span>bitnami/mongodb<span class="w"> </span>--version<span class="w"> </span><span class="m">13</span>.9.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set<span class="w"> </span><span class="nv">architecture</span><span class="o">=</span>standalone<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set<span class="w"> </span><span class="s1">&#39;auth.usernames[0]=myuser&#39;</span><span class="w"> </span>--set<span class="w"> </span><span class="s1">&#39;auth.passwords[0]=mypass&#39;</span><span class="w"> </span>--set<span class="w"> </span><span class="s1">&#39;auth.databases[0]=mydb&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set<span class="w"> </span>persistence.enabled<span class="o">=</span><span class="nb">false</span>
+</code></pre></div></p>
+<details class="tip">
+<summary>Using persistence</summary>
+<p>Since we installed longhorn, we can turn on persistence if we want to:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>mongodb<span class="w"> </span>bitnami/mongodb<span class="w"> </span>--version<span class="w"> </span><span class="m">13</span>.9.1<span class="w"> </span><span class="se">\</span>
+--set<span class="w"> </span><span class="nv">architecture</span><span class="o">=</span>standalone<span class="w"> </span>--set<span class="w"> </span><span class="s1">&#39;auth.usernames[0]=myuser&#39;</span><span class="w"> </span>--set<span class="w"> </span><span class="s1">&#39;auth.passwords[0]=mypass&#39;</span><span class="w"> </span>--set<span class="w"> </span><span class="s1">&#39;auth.databases[0]=mydb&#39;</span><span class="w"> </span><span class="se">\</span>
+--set<span class="w"> </span>persistence.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--set<span class="w"> </span>persistence.storageClass<span class="o">=</span>longhorn<span class="w"> </span>--set<span class="w"> </span>persistence.size<span class="o">=</span>1Gi
+</code></pre></div></p>
+</details>
+<p>We can now deploy/upgrade rickroller and ask it to use mongodb:
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>rickroller<span class="w"> </span>.<span class="w"> </span>--set<span class="w"> </span>env.DATABASE_URL<span class="o">=</span><span class="s1">&#39;mongodb://myuser:mypass@mongodb/mydb&#39;</span>
+</code></pre></div></p>
+<h2 id="using-subcharts">Using subcharts<a class="headerlink" href="#using-subcharts" title="Permanent link">&para;</a></h2>
+<p>It is also possible to make mongodb <em>part of</em> the rickroller Helm chart. The advantage is that we only need one
+helm command to get both. The disadvantage? They are treated as a whole: we cannot update or uninstall one without the
+other.</p>
+<details class="tip">
+<summary>Adding mongodb as a subchart</summary>
+<p>First, add the following to <code>Chart.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mongodb</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">13.9.1</span>
+<span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@bitnami&quot;</span>
+</code></pre></div></p>
+<p>Next, add the following to <code>values.yaml</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">mongodb</span><span class="p">:</span>
+<span class="nt">auth</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rootPassword</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
+<span class="w">  </span><span class="nt">usernames</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">myuser</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">passwords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">mypass</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">databases</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">mydb</span><span class="p p-Indicator">]</span>
+<span class="nt">persistence</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">storageClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn</span>
+<span class="w">  </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
+
+<span class="c1"># ...</span>
+
+<span class="nt">env</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># ...</span>
+<span class="w">  </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mongodb://myuser:mypass@{{ .Release.Name }}-mongodb/mydb</span>
+</code></pre></div></p>
+<p>Done! Run the following command once and you are good to go:
+<div class="highlight"><pre><span></span><code><span class="c1"># update the dependencies</span>
+<span class="c1"># this will create a folder charts/ with a tar of the mongodb chart</span>
+helm<span class="w"> </span>dependency<span class="w"> </span>update
+</code></pre></div></p>
+</details>
+<p>A chart can have any number of subcharts, making it possible to treat a large and
+complex project as a whole. In this case, we call the root helm chart an
+umbrella chart.</p>
+<p>The <strong>umbrella chart</strong> is responsible for creating the namespace and the global
+components such as the network policies, and each microservice is included as
+a dependency.</p>
+<p>It is even possible to reuse the same generic helm chart for multiple dependencies/microservice.
+For this, we only have one subchart directory (only one chart under <code>charts</code>),
+but reference it multiple times in the dependencies. This generic subchart is then
+configured with different values depending on the microservice.</p>
+<p>Here is an example:</p>
+<div class="highlight"><span class="filename">Chart.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-umbrella-chart</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A Helm umbrella chart for deploying my application.</span>
+<span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">umbrella</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+
+<span class="c1"># the name reference the chart (templates),</span>
+<span class="c1"># the alias is the name we give for this instance of the templates</span>
+<span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-1</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generic-chart</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+<span class="w">    </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-1.enabled</span><span class="w"> </span><span class="c1"># we can even use conditions!</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-N</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generic-chart</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+<span class="w">    </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-N.enabled</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">values.yaml</span><pre><span></span><code><span class="nt">service-1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SERVICE_1_CONTEXT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bar</span>
+<span class="w">    </span><span class="c1"># ...</span>
+
+<span class="nt">service-N</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service-n.example.com</span>
+<span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../01-deploy-raw/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Manifests" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Manifests
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-helmfile/" class="md-footer__link md-footer__link--next" aria-label="Next: Helmfile" rel="next">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Helmfile
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Lucy Linder @ derlin
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://blog.derlin.ch" target="_blank" rel="noopener" title="blog.derlin.ch" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M455.6 349.2c-45.891-39.09-36.67-77.877-16.095-128.11C475.16 134.04 415.967 34.14 329.93 8.3 237.04-19.6 134.252 24.341 99.677 117.147a180.862 180.862 0 0 0-10.988 73.544c1.733 29.543 14.717 52.97 24.09 80.3 17.2 50.161-28.1 92.743-66.662 117.582-46.806 30.2-36.319 39.857-8.428 41.858 23.378 1.68 44.478-4.548 65.265-15.045 9.2-4.647 40.687-18.931 45.13-28.588-12.184 26.59-36.962 72.702-21.463 102.102 19.1 36.229 67.112-31.77 76.709-45.812 8.591-12.572 42.963-81.279 63.627-46.926 18.865 31.361 8.6 76.391 35.738 104.622 32.854 34.2 51.155-18.312 51.412-44.221.163-16.411-6.1-95.852 29.9-59.944 21.421 21.381 52.905 71.181 88.561 67.023 38.736-4.516-22.123-67.967-28.262-78.695 5.393 4.279 53.665 34.128 53.818 9.52.11-18.789-30.085-34.667-42.524-45.267Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/derlin" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/lucy-linder-4a401726" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://dev.to/derlin" target="_blank" rel="noopener" title="dev.to" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.73 11.93c0 1.72-.02 1.83-.23 2.07-.19.17-.38.23-.76.23l-.51.01-.03-2.27-.02-2.27h.52c.35 0 .6.07.77.21.24.21.26.25.26 2.02M22 7.5v9c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2v-9c0-1.11.89-2 2-2h16c1.11 0 2 .89 2 2M8.93 11.73c-.03-1.84-.05-1.99-.29-2.39-.4-.68-.85-.84-2.36-.84H5v7h1.21c1.33 0 1.89-.17 2.29-.71.41-.53.5-.98.43-3.06m4.19-3.23h-1.48c-1.49 0-1.5 0-1.71.28S9.7 9.21 9.7 12v2.96l.27.27c.25.27.31.27 1.71.27h1.44v-1.19l-1.09-.04-1.1-.03V12.6l.68-.03.66-.04v-1.19h-1.39V9.7h2.24V8.5m5.88.06c0-.06-.3-.06-.66-.06l-.68.06-.59 2.35c-.38 1.48-.62 2.27-.67 2.13-.08-.27-1.14-4.44-1.14-4.49 0-.05-.31-.05-.68-.05h-.69l.41 1.55c.2.87.59 2.28.81 3.15.34 1.35.46 1.65.75 1.94.2.22.45.36.61.36.33 0 .76-.34.9-.73C17.5 14.5 19 8.69 19 8.56Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.b4d07000.min.js"></script>
+      
+    
+  </body>
+</html>

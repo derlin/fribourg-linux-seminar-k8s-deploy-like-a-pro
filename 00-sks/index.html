@@ -1,0 +1,852 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn about Kubernetes from a developer point of view, and how to deploy your apps with style.">
+      
+      
+        <meta name="author" content="Lucy Linder, akka derlin">
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../01-deploy-raw/">
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.13">
+    
+    
+      
+        <title>The Cluster - A Cool Kids Guide to deploy on Kubernetes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spawn-an-sks-cluster" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-header__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            A Cool Kids Guide to deploy on Kubernetes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The Cluster
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_3" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_3">
+            
+              <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-nav__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    A Cool Kids Guide to deploy on Kubernetes
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          The Cluster
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        The Cluster
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spawn-an-sks-cluster" class="md-nav__link">
+    Spawn an SKS cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-composes-a-kubernetes-cluster" class="md-nav__link">
+    What composes a Kubernetes cluster?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-installed" class="md-nav__link">
+    What was installed?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discover-your-cluster" class="md-nav__link">
+    Discover your cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-a-ui" class="md-nav__link">
+    Use a UI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#want-to-work-locally" class="md-nav__link">
+    Want to work locally?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-deploy-raw/" class="md-nav__link">
+        Manifests
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-helm/" class="md-nav__link">
+        Helm
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-helmfile/" class="md-nav__link">
+        Helmfile
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-argo/" class="md-nav__link">
+        Argo CD
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-summary/" class="md-nav__link">
+        Summary
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spawn-an-sks-cluster" class="md-nav__link">
+    Spawn an SKS cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-composes-a-kubernetes-cluster" class="md-nav__link">
+    What composes a Kubernetes cluster?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-installed" class="md-nav__link">
+    What was installed?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discover-your-cluster" class="md-nav__link">
+    Discover your cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-a-ui" class="md-nav__link">
+    Use a UI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#want-to-work-locally" class="md-nav__link">
+    Want to work locally?
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>The Cluster</h1>
+
+<p>We first need a Kubernetes cluster. As mentioned in the introduction, there are lots available.
+Instead of running locally (using e.g. k3d), let's use the <a href="https://community.exoscale.com/documentation/sks">Scalable Kubernetes Service (SKS)</a> from <a href="https://exoscale.com">Exoscale</a>,
+using the <em>starter</em> pricing tier.</p>
+<div class="admonition note">
+<p>For the time being, consider "pod" a synonym for a container. We will see later
+the difference between regular containers and k8s pods. </p>
+</div>
+<details class="tip">
+<summary>Using a local Kubernetes cluster</summary>
+<p>If you do not have an account on Exoscale, or simply do not want to use a managed
+cluster, you can run everything on your machine using Kubernetes in Docker.
+For more information, head to the <a href="#want-to-work-locally">Want to work locally?</a>
+section on this page.</p>
+</details>
+<h2 id="spawn-an-sks-cluster">Spawn an SKS cluster<a class="headerlink" href="#spawn-an-sks-cluster" title="Permanent link">&para;</a></h2>
+<p>You'll find a terraform module in this repository that you can use to spin up your own.
+The only thing you need is a valid API key and secret.</p>
+<p>Login to Exoscale, navigate to <em>IAM</em> &gt; <em>API KEY</em> and create a new key.
+On your terminal, do:
+<div class="highlight"><pre><span></span><code><span class="nv">TF_VAR_exoscale_api_key</span><span class="o">=</span>&lt;your<span class="w"> </span>key&gt;
+<span class="nv">TF_VAR_exoscale_api_secret</span><span class="o">=</span>&lt;your<span class="w"> </span>secret&gt;
+</code></pre></div></p>
+<p>Now you are ready. Navigate to <code>terraform</code> and run:
+<div class="highlight"><pre><span></span><code>terraform<span class="w"> </span>init
+terraform<span class="w"> </span>plan
+terraform<span class="w"> </span>apply<span class="w"> </span>-auto-approve
+</code></pre></div></p>
+<p>Wait a few minutes, and boom! You have a Kubernetes cluster.
+Copy and paste the output in your terminal, something like:
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">KUBECONFIG</span><span class="o">=</span>...<span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span>cluster-info
+</code></pre></div></p>
+<p>Finally, install the Nginx Ingress Controller by running:
+<div class="highlight"><pre><span></span><code><span class="c1">## Ensure you exported KUBECONFIG=... first!</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml
+</code></pre></div></p>
+<p>(The Nginx Ingress Controller was initially installed in terraform - see <code>terraform/main.tf</code>,
+but the destroy often fails, so better to do it manually.)</p>
+<div class="admonition warning">
+<p class="admonition-title">Don't forget to stop the cluster</p>
+<p>Once you finished experimenting, don't forget to destroy your cluster
+to avoid unecessary costs:
+<div class="highlight"><pre><span></span><code><span class="c1"># Uninstall Nginx Ingress Controller first,</span>
+<span class="c1"># or the load balancer on exoscale will stay there and cost you</span>
+kubectl<span class="w"> </span>destroy<span class="w"> </span>-f<span class="w"> </span>https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/exoscale/deploy.yaml
+<span class="c1"># Then destroy the cluster</span>
+terraform<span class="w"> </span>destroy<span class="w"> </span>-auto-approve
+</code></pre></div>
+Always go to the Exoscale Console and ensure there is no remaining Load Balancers.
+You never know, and load balancers are expensive!</p>
+</div>
+<h2 id="what-composes-a-kubernetes-cluster">What composes a Kubernetes cluster?<a class="headerlink" href="#what-composes-a-kubernetes-cluster" title="Permanent link">&para;</a></h2>
+<p>Kubernetes is a distributed system that consists of two main components: the control plane and the nodes.
+You communicate with the API server running in the control plane, and it takes the necessary action to
+make your workload run on some worker node(s).</p>
+<p>Need an analogy? Checkout <a href="https://www.slideshare.net/ajeetraina/demystifying-the-nuts-bolts-of-kubernetes-architecture">Demystifying the Nuts &amp; Bolts of Kubernetes Architecture</a>
+and <a href="https://telcocloudbridge.com/blog/what-is-kubernetes-and-its-architecture/">What is Kubernetes? Confused? Kubernetes and its Architecture Explained in Plain English</a></p>
+<p><img alt="Kubernetes Overview" src="../assets/00-k8s-control-plane.excalidraw.png" /></p>
+<p>The <strong>control plane</strong> is responsible for managing and orchestrating the various workloads that run on the nodes.
+It typically runs on a dedicated set of machines (separated from the worker nodes) and includes several key components:</p>
+<dl>
+<dt>API Server (<code>kube-apiserver</code>)</dt>
+<dd>The API server acts as the control plane's frontend, providing a RESTful API for users and other components to interact with.</dd>
+<dt>etcd</dt>
+<dd>etcd is a distributed key-value store that stores the cluster's configuration data and provides a reliable storage layer for the control plane.
+As you will see, k8s is declarative. All the states of the nodes, workloads, etc (in YAML or JSON format) are stored in etcd.</dd>
+<dt>Scheduler (<code>kube-scheduler</code>)</dt>
+<dd>The scheduler is responsible for determining which nodes in the cluster should run which pod.
+It takes into account many things such as the resource needs of the pods, such as CPU or memory, and the health of the cluster
+to make a decision. </dd>
+<dt>Controller Manager (<code>kube-controller-manager</code>)</dt>
+<dd>The controller manager is responsible for running the core controllers that regulate the state of the cluster:
+Node controller (nodes down or added), Job controller, EndpointSlice controller, ServiceAccount controller, etc.
+Logically, each controller is a separate process, but to reduce complexity, they are all compiled into a single binary and run in a single process.</dd>
+<dt>(<em>optional</em>) Cluster Controller Manager (<code>cloud-controller-manager</code>)</dt>
+<dd>The cluster controller manager is only present when running a managed Kubernetes in the cloud (vs on-prem).
+It embeds cloud-specific logic specific to your cloud provider e.g. to manage routes, load balancers, nodes, etc.</dd>
+</dl>
+<p>The <strong>nodes</strong>, on the other hand, are the actual worker machines that run the containers and workloads 
+and are managed by the control plane (communicating through the API server). A node includes the following components:</p>
+<dl>
+<dt>Container runtime</dt>
+<dd>The software responsible for running containers. It can be any implementation of the <a href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-node/container-runtime-interface.md">Kubernetes CRI (Container Runtime Interface)</a>, but most usually containerd or CRI-O.</dd>
+<dt><code>kubelet</code></dt>
+<dd>kubelet is the agent responsible for managing Kubernetes pods on the machine, ensuring they are running and healthy.
+It also constantly communicates with the control plane about the status of the nodes and the containers running on it.</dd>
+<dt><code>kube-proxy</code></dt>
+<dd>kube-proxy maintains network rules on nodes, to allow network communication to pods from network sessions inside or outside the cluster.
+It typically relies on <code>iptables</code> (if available).</dd>
+</dl>
+<p>In the most minimal setup (e.g. k3d), one control plane and one node can run on a single machine.
+For a minimal HA - high availability - cluster, one would rather have three machines: one control plane and two workers.
+More nodes can be added to sustain the workload, and it is recommended to also make the control plane fault tolerant
+by scaling it horizontally on multiple machines.</p>
+<h2 id="what-was-installed">What was installed?<a class="headerlink" href="#what-was-installed" title="Permanent link">&para;</a></h2>
+<p>When creating the SKS cluster above, we created:</p>
+<ul>
+<li>a Kubernetes <strong>control plane</strong> (with an Exoscale Cloud Controller Manager),</li>
+<li>an Exoscale <em>nodepool</em>, which provisioned two compute instances that were registered as Kubernetes <strong>nodes</strong> (or <strong>worker nodes</strong>).</li>
+</ul>
+<p>Additionally, Exoscale's SKS automatically installs:</p>
+<ul>
+<li>The CNI<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> plugin <a href="https://www.tigera.io/project-calico/">Calico</a>: to manage the cluster network and add support for network policies,
+  security, and better encapsulation;
+  see <a href="https://www.tigera.io/learn/guides/kubernetes-networking/kubernetes-cni/">Kubernetes CNI Explained</a>.</li>
+<li><a href="https://coredns.io/">CoreDNS</a>: a DNS server that provides service discovery and name resolution for Kubernetes services and pods,
+  allowing them to communicate with each other using human-readable domain names;</li>
+<li><a href="https://github.com/kubernetes-sigs/apiserver-network-proxy">Konnectivity</a>: a tool that enables secure,
+  in-cluster communication between nodes and pods across different Kubernetes clusters,
+  providing a way to establish encrypted and authenticated connections over the public internet;</li>
+<li><a href="https://github.com/kubernetes-sigs/metrics-server">Metrics server</a>: an agent that collects resource metrics
+  from Kubelets and exposes them through the Kubernetes API server (<code>kubectl top</code>).</li>
+</ul>
+<p>But this is not all! The terraform script also potentially adds (see comments in <code>terraform/main.tf</code>):</p>
+<ul>
+<li>The <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/">NGINX Ingress Controller</a>: to provide extrernal
+  access and manage routes (i.e. <code>Ingress</code>) based on hosts, path prefix, etc.</li>
+<li><a href="longhorn.io/">Longhorn</a>: a distributed block storage system that provides reliable and scalable persistent storage
+  for stateful applications.</li>
+</ul>
+<h2 id="discover-your-cluster">Discover your cluster<a class="headerlink" href="#discover-your-cluster" title="Permanent link">&para;</a></h2>
+<p>After exporting the <code>KUBECONFIG</code> environment variable, you can use <code>kubectl</code> to discover and interact with your cluster.
+kubectl is using HTTP requests to the API Server under the hood.</p>
+<p>Get general information:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>cluster-info
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>Kubernetes<span class="w"> </span>control<span class="w"> </span>plane<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>at<span class="w"> </span>https://xxxx.sks-ch-gva-2.exo.io:443
+CoreDNS<span class="w"> </span>is<span class="w"> </span>running<span class="w"> </span>at<span class="w"> </span>https://xxxx.sks-ch-gva-2.exo.io:443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+</code></pre></div></p>
+<p>Get the list of nodes:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>nodes
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>NAME<span class="w">               </span>STATUS<span class="w">   </span>ROLES<span class="w">    </span>AGE<span class="w">    </span>VERSION
+pool-cb5ee-stszx<span class="w">   </span>Ready<span class="w">    </span>&lt;none&gt;<span class="w">   </span>147m<span class="w">   </span>v1.26.3
+pool-cb5ee-uqiut<span class="w">   </span>Ready<span class="w">    </span>&lt;none&gt;<span class="w">   </span>147m<span class="w">   </span>v1.26.3
+</code></pre></div></p>
+<p>Note that above, only the worker nodes are shown (no role). This is because the control plane nodes
+are managed by Exoscale and thus hidden. If you were to execute this command on a local k3d cluster,
+you would see a single node with roles <code>control-plane,master</code>.</p>
+<p>See the nodes running in the kube namespace:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>kube-system
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>NAME<span class="w">                                       </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
+calico-kube-controllers-5f94594857-dcbjh<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>150m
+calico-node-66kpj<span class="w">                          </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>149m
+calico-node-jfbcj<span class="w">                          </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>149m
+coredns-7cd5b7d6b4-c82vx<span class="w">                   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>150m
+coredns-7cd5b7d6b4-vbdns<span class="w">                   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>150m
+konnectivity-agent-799d489b4f-6gt5b<span class="w">        </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>150m
+konnectivity-agent-799d489b4f-pdpls<span class="w">        </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>150m
+kube-proxy-njsgs<span class="w">                           </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>149m
+kube-proxy-smfdm<span class="w">                           </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>149m
+metrics-server-77cc46c76-mlwkn<span class="w">             </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>149m
+</code></pre></div></p>
+<p>We have two worker nodes, thus two instances of most services: one for each!</p>
+<p>Finally, have a look at the metrics exposed by the Metrics server:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>top<span class="w"> </span>node<span class="w"> </span><span class="c1"># or top pod</span>
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>NAME<span class="w">               </span>CPU<span class="o">(</span>cores<span class="o">)</span><span class="w">   </span>CPU%<span class="w">   </span>MEMORY<span class="o">(</span>bytes<span class="o">)</span><span class="w">   </span>MEMORY%<span class="w">   </span>
+pool-cb5ee-stszx<span class="w">   </span>89m<span class="w">          </span><span class="m">4</span>%<span class="w">     </span>1094Mi<span class="w">          </span><span class="m">65</span>%<span class="w">       </span>
+pool-cb5ee-uqiut<span class="w">   </span>121m<span class="w">         </span><span class="m">6</span>%<span class="w">     </span>1402Mi<span class="w">          </span><span class="m">83</span>%<span class="w">  </span>
+</code></pre></div></p>
+<h2 id="use-a-ui">Use a UI<a class="headerlink" href="#use-a-ui" title="Permanent link">&para;</a></h2>
+<p>Using <code>kubectl</code> may be tiring. Let's use a UI!</p>
+<p>There are lots of dashboards available. Here are my two personal favorites.</p>
+<p><a href="https://k9scli.io/"><strong>k9s</strong></a>: A terminal-based UI.</p>
+<p><img alt="k9s" src="https://k9scli.io/assets/screens/pods.png" /></p>
+<p><a href="https://k8slens.dev/"><strong>Lens</strong></a>: a Kubernetes dashboard and IDE running on your local machine.
+Once installed, go to <em>Files</em> &gt; <em>Add cluster</em> and copy the content of your kubeconfig inside.  </p>
+<p><img alt="Lens" src="https://k8slens.dev/images/header-lens.png" /></p>
+<h2 id="want-to-work-locally">Want to work locally?<a class="headerlink" href="#want-to-work-locally" title="Permanent link">&para;</a></h2>
+<p>Install <a href="https://k3d.io">k3d</a>, a lightweight wrapper to run <a href="https://github.com/k3s-io/k3s">k3s</a>
+(Rancher Lab’s minimal Kubernetes distribution) in docker.</p>
+<p>Once done, you can create a cluster using <code>k3d cluster create</code>. By default, k3d installs a cluster with
+the <a href="https://doc.traefik.io/traefik/providers/kubernetes-ingress/">traefik ingress controller</a>.
+Since we are using the Nginx ingress controller in this demo, we need to disable traefik and install
+nginx.</p>
+<p>Create a cluster:
+<div class="highlight"><pre><span></span><code>k3d<span class="w"> </span>cluster<span class="w"> </span>create<span class="w"> </span>nginx<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--k3s-arg<span class="w"> </span><span class="s2">&quot;--disable=traefik@server:0&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--api-port<span class="w"> </span><span class="m">6550</span><span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;8081:80@loadbalancer&quot;</span>
+</code></pre></div></p>
+<p>In the command above, we:</p>
+<ul>
+<li>give a prefix to the name of the cluster - <code>nginx</code> - so the cluster name will be <code>k3d-nginx</code> (try running <code>kubectx</code>),</li>
+<li>ask k3d to map the API Server port to the port <code>6550</code> on our local machine (the host),</li>
+<li>ask k3d to map the Load Balancer port to the port <code>8081</code> of our local machine (remember everything runs on Docker!).</li>
+</ul>
+<p>You can of course change any of those values.</p>
+<p>Next, install the Nginx ingress controller:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud/deploy.yaml
+</code></pre></div></p>
+<p>You are good to go! You can now follow along. Note that you will see some differences in the outputs, but not that many.
+Just remember:</p>
+<ul>
+<li>your k8s cluster only has one node, which is both a control plane node and a worker node,</li>
+<li>to access your load balancer, use <a href="http://localhost:8081">http://localhost:8081</a> (or any port you supplied during the cluster creation).
+  It means you will have to access the rickroller app using <a href="http://localhost:8081/rickroller">http://localhost:8081/rickroller</a>
+  when we will be talking about ingresses.</li>
+</ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>CNI, <a href="https://github.com/containernetworking/cni">Container Network Interface</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Introduction
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../01-deploy-raw/" class="md-footer__link md-footer__link--next" aria-label="Next: Manifests" rel="next">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Manifests
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Lucy Linder @ derlin
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://blog.derlin.ch" target="_blank" rel="noopener" title="blog.derlin.ch" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M455.6 349.2c-45.891-39.09-36.67-77.877-16.095-128.11C475.16 134.04 415.967 34.14 329.93 8.3 237.04-19.6 134.252 24.341 99.677 117.147a180.862 180.862 0 0 0-10.988 73.544c1.733 29.543 14.717 52.97 24.09 80.3 17.2 50.161-28.1 92.743-66.662 117.582-46.806 30.2-36.319 39.857-8.428 41.858 23.378 1.68 44.478-4.548 65.265-15.045 9.2-4.647 40.687-18.931 45.13-28.588-12.184 26.59-36.962 72.702-21.463 102.102 19.1 36.229 67.112-31.77 76.709-45.812 8.591-12.572 42.963-81.279 63.627-46.926 18.865 31.361 8.6 76.391 35.738 104.622 32.854 34.2 51.155-18.312 51.412-44.221.163-16.411-6.1-95.852 29.9-59.944 21.421 21.381 52.905 71.181 88.561 67.023 38.736-4.516-22.123-67.967-28.262-78.695 5.393 4.279 53.665 34.128 53.818 9.52.11-18.789-30.085-34.667-42.524-45.267Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/derlin" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/lucy-linder-4a401726" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://dev.to/derlin" target="_blank" rel="noopener" title="dev.to" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.73 11.93c0 1.72-.02 1.83-.23 2.07-.19.17-.38.23-.76.23l-.51.01-.03-2.27-.02-2.27h.52c.35 0 .6.07.77.21.24.21.26.25.26 2.02M22 7.5v9c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2v-9c0-1.11.89-2 2-2h16c1.11 0 2 .89 2 2M8.93 11.73c-.03-1.84-.05-1.99-.29-2.39-.4-.68-.85-.84-2.36-.84H5v7h1.21c1.33 0 1.89-.17 2.29-.71.41-.53.5-.98.43-3.06m4.19-3.23h-1.48c-1.49 0-1.5 0-1.71.28S9.7 9.21 9.7 12v2.96l.27.27c.25.27.31.27 1.71.27h1.44v-1.19l-1.09-.04-1.1-.03V12.6l.68-.03.66-.04v-1.19h-1.39V9.7h2.24V8.5m5.88.06c0-.06-.3-.06-.66-.06l-.68.06-.59 2.35c-.38 1.48-.62 2.27-.67 2.13-.08-.27-1.14-4.44-1.14-4.49 0-.05-.31-.05-.68-.05h-.69l.41 1.55c.2.87.59 2.28.81 3.15.34 1.35.46 1.65.75 1.94.2.22.45.36.61.36.33 0 .76-.34.9-.73C17.5 14.5 19 8.69 19 8.56Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.b4d07000.min.js"></script>
+      
+    
+  </body>
+</html>

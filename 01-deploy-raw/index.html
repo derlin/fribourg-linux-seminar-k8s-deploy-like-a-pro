@@ -1,0 +1,1072 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn about Kubernetes from a developer point of view, and how to deploy your apps with style.">
+      
+      
+        <meta name="author" content="Lucy Linder, akka derlin">
+      
+      
+      
+        <link rel="prev" href="../00-sks/">
+      
+      
+        <link rel="next" href="../02-helm/">
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.13">
+    
+    
+      
+        <title>Manifests - A Cool Kids Guide to deploy on Kubernetes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#namespaces" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-header__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            A Cool Kids Guide to deploy on Kubernetes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Manifests
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_3" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_3">
+            
+              <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="A Cool Kids Guide to deploy on Kubernetes" class="md-nav__button md-logo" aria-label="A Cool Kids Guide to deploy on Kubernetes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    A Cool Kids Guide to deploy on Kubernetes
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/fribourg-linux-seminar-k8s-deploy-like-a-pro
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-sks/" class="md-nav__link">
+        The Cluster
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Manifests
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Manifests
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#namespaces" class="md-nav__link">
+    Namespaces
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-in-a-pod" class="md-nav__link">
+    Deploy in a pod
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-pods-exactly" class="md-nav__link">
+    What are pods exactly?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployments-statefulsets-replicatsets" class="md-nav__link">
+    Deployments, StatefulSets, ReplicatSets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-deployment" class="md-nav__link">
+    Using a Deployment
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    Services
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingresses" class="md-nav__link">
+    Ingresses
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recap" class="md-nav__link">
+    Recap'
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-helm/" class="md-nav__link">
+        Helm
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-helmfile/" class="md-nav__link">
+        Helmfile
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-argo/" class="md-nav__link">
+        Argo CD
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-summary/" class="md-nav__link">
+        Summary
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#namespaces" class="md-nav__link">
+    Namespaces
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-in-a-pod" class="md-nav__link">
+    Deploy in a pod
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-pods-exactly" class="md-nav__link">
+    What are pods exactly?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployments-statefulsets-replicatsets" class="md-nav__link">
+    Deployments, StatefulSets, ReplicatSets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-deployment" class="md-nav__link">
+    Using a Deployment
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    Services
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingresses" class="md-nav__link">
+    Ingresses
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recap" class="md-nav__link">
+    Recap'
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Manifests</h1>
+
+<p>First, let's deploy our rickroller application the "manual" way.</p>
+<h2 id="namespaces">Namespaces<a class="headerlink" href="#namespaces" title="Permanent link">&para;</a></h2>
+<p>Kubernetes comes with <em>namespaces</em>, a way to partition resources within a cluster into <strong>virtual clusters</strong>,
+or groups. Each namespace can have different policies, access controls, quotas etc. and are by default a bit isolated.
+They also provide a scope for names: names of resources need to be unique within a namespace, but not across namespaces.
+See <a href="https://www.synacktiv.com/en/publications/kubernetes-namespaces-isolation-what-it-is-what-it-isnt-life-universe-and-everything.html">Kubernetes namespaces isolation - what it is, what it isn't, life, universe and everything</a>.</p>
+<p>If you don't specify a namespace, kubectl will connect to the default namespace idiomatically named <code>default</code>.
+You can easily create a namespace using <code>kubectl create namespace &lt;name&gt;</code>, and target it using
+the global <code>-n &lt;name&gt;</code> flag.</p>
+<p>To make a namespace the default for a session, you can try playing with kubectl contexts, or more
+conveniently install <a href="https://github.com/ahmetb/kubectx"><code>kubectx</code> + <code>kubens</code></a>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># create a namespace called test</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span><span class="nb">test</span>
+<span class="c1"># make it the default for all subsequent commands (that do not use -n)</span>
+kubens<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<h2 id="deploy-in-a-pod">Deploy in a pod<a class="headerlink" href="#deploy-in-a-pod" title="Permanent link">&para;</a></h2>
+<p>The simplest way to get our Docker image running in k8s is to create a pod.</p>
+<p>Either run <code>kubectl run rickroller --image=derlin/rickroller:latest --port 8080</code>, or
+create the following YAML and apply it using <code>kubectl apply -f</code> (both are equivalent):</p>
+<div class="highlight"><span class="filename">kube/pod.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">derlin/rickroller</span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div>
+<p>Ensure it is running using: <code>kubectl get pod</code>. 
+How can we access it? The easiest way is to create a port forward:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>port-forward<span class="w"> </span>pod/rickroller<span class="w"> </span><span class="m">8888</span>:8080
+</code></pre></div>
+<p>You can now navigate to <a href="http://localhost:8888">http://localhost:8888</a>.</p>
+<h2 id="what-are-pods-exactly">What are pods exactly?<a class="headerlink" href="#what-are-pods-exactly" title="Permanent link">&para;</a></h2>
+<p>Pods are the smallest deployable unit on Kubernetes and the core of everything.</p>
+<p>A Pod is a self-sufficient higher-level construct.
+It is rather like a container, with a big difference: it can have <strong>multiple containers</strong>.
+All pod's containers run on the same machine (cluster node), their lifecycle is synchronized, and mutual isolation is weakened to
+simplify the inter-container communication.</p>
+<details class="note" open="open">
+<summary>A deeper look</summary>
+<p><img alt="A close look at containers vs pods" src="../assets/01-pods-details.excalidraw.png" /></p>
+<p>A Docker container is implemented using <a href="https://man7.org/linux/man-pages/man7/cgroups.7.html">cgroups</a>
+and <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html">namespaces</a>.
+Usually, containers are isolated using the following namespaces:</p>
+<ul>
+<li><code>mnt</code> (Mount) - the container has an isolated mount table.</li>
+<li><code>uts</code> (UNIX Time-Sharing) - the container can have its own hostname and domain name.</li>
+<li><code>ipc</code> (Interprocess Communication) - processes inside the container can communicate via system-level IPC only to processes inside the same container.</li>
+<li><code>pid</code> (Process ID) - processes inside the container are only able to see other processes inside the same container or inside the same pid namespace.</li>
+<li><code>net</code> (Network) - the container gets its own network stack.</li>
+</ul>
+<p>With pods, some of the above namespaces (<code>ipc</code>, <code>uts</code>, <code>net</code>) are shared between the containers,
+which weakens their isolation to allow for easier communication. More namespaces can be shared on-demand.</p>
+<p>⮕ Learn more: <a href="https://iximiuz.com/en/posts/containers-vs-pods/">Containers vs. Pods - Taking a Deeper Look</a></p>
+</details>
+<p>This means we could run another container inside the <code>rickroller</code> pod and access it using localhost.
+Here is an example (run <code>kubectl delete pod rickroller</code> first, then use <code>kubectl apply -f</code>):
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sh</span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">busybox</span>
+<span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;sh&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;-c&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;while</span><span class="nv"> </span><span class="s">1;</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">10;</span><span class="nv"> </span><span class="s">done&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">derlin/rickroller:latest</span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div></p>
+<p>Now, let's get the index from the busybox container:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>rickroller<span class="w"> </span>--container<span class="w"> </span>sh<span class="w"> </span>--<span class="w"> </span>wget<span class="w"> </span>localhost:8080<span class="w"> </span>-O<span class="w"> </span>-
+</code></pre></div></p>
+<p>As you can see, we can communicate with the rickroller container from the sh container on localhost!</p>
+<p>Don't forget to remove the pod: <code>kubectl delete pod rickroller</code>.</p>
+<details class="tip">
+<summary>Another sidecar example</summary>
+<p>Sidecars are way more interesting when it comes to e.g. providing authentication, exposing logs, etc.
+Here is another example, this time with a shared volume:
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">webapp</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app</span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nginx</span>
+<span class="w">      </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared-logs</span>
+<span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/log/nginx</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sidecar</span>
+<span class="w">      </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">busybox</span>
+<span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;sh&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;touch</span><span class="nv"> </span><span class="s">/var/log/nginx/access.log;</span><span class="nv"> </span><span class="s">tail</span><span class="nv"> </span><span class="s">-F</span><span class="nv"> </span><span class="s">/var/log/nginx/access.log&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared-logs</span>
+<span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/log/nginx</span>
+<span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shared-logs</span>
+<span class="w">      </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</code></pre></div>
+Try it!</p>
+</details>
+<h2 id="deployments-statefulsets-replicatsets">Deployments, StatefulSets, ReplicatSets<a class="headerlink" href="#deployments-statefulsets-replicatsets" title="Permanent link">&para;</a></h2>
+<p>Pods are usually never created directly but managed with higher-level resources.</p>
+<p>There are two (three) main common abstractions that simplify the management of containerized applications.
+you define a desired state and let k8s take care of the details (create, scale, update, etc.) of the underlying containers and pods.</p>
+<dl>
+<dt><code>Deployments</code></dt>
+<dd>Deployments provide a declarative way to manage the creation and scaling of a set of identical pods. You provide a pod template, and it
+takes care of creating the necessary ReplicaSets that will in turn ensure the desired number of pods are running.</dd>
+<dt><code>StatefulSets</code></dt>
+<dd>StatefulSets are similar to Deployments, but are used for stateful applications that require stable network identities, persistent storage, and ordered deployment and scaling.
+For example, the name of the pods will always look the same (e.g. <code>&lt;name&gt;-0</code>) instead of having a random UUID.</dd>
+<dt>(<code>ReplicaSets</code>)</dt>
+<dd>ReplicaSets are used by <code>Deployments</code> and <code>StatefulSets</code> to manage the desired number of replicas (i.e., identical instances) of a pod template.
+Each replicaset is configured with a minimum, maximum, and desired number of replicas, and will do all the necessary actions to ensure those values are respected.
+You usually don't create them directly but know they are here.</dd>
+</dl>
+<p>In the case of rickroller, the web app should be handled by a <code>Deployment</code>, while a database will likely use a <code>StatefulSet</code> as it requires persistent storage.</p>
+<h2 id="using-a-deployment">Using a Deployment<a class="headerlink" href="#using-a-deployment" title="Permanent link">&para;</a></h2>
+<p>Deployments can be created using YAML or directly through kubectl. Via kubectl:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>deployment<span class="w"> </span>rickroller<span class="w"> </span>--image<span class="o">=</span>derlin/rickroller:latest<span class="w"> </span>--port<span class="o">=</span><span class="m">8080</span><span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="c1"># --dry-run=client </span>
+</code></pre></div>
+<p>Or using a yaml file:
+<div class="highlight"><span class="filename">kube/depl.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"> </span><span class="c1"># number of desired pods</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"> </span><span class="c1"># &lt;-</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="c1"># template used to create the ReplicaSet the pods</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span><span class="w"> </span><span class="c1"># &lt;-</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">derlin/rickroller:latest</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div></p>
+<p>Note the <code>spec.selector.matchLabels</code> and the <code>spec.template.metadata.labels</code>.
+The selector is used to determine which pods are part of this deployment, and thus the number of instances running.</p>
+<p>By creating the deployment, we should see 1 pod, 1 replicaset and 1 deployment:</p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>all
+</code></pre></div>
+<div class="no-copy highlight"><pre><span></span><code>NAME<span class="w">                             </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
+pod/rickroller-dd4b47459-j9mdg<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>25s
+
+NAME<span class="w">                         </span>READY<span class="w">   </span>UP-TO-DATE<span class="w">   </span>AVAILABLE<span class="w">   </span>AGE
+deployment.apps/rickroller<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span><span class="m">1</span><span class="w">            </span><span class="m">1</span><span class="w">           </span>25s
+
+NAME<span class="w">                                   </span>DESIRED<span class="w">   </span>CURRENT<span class="w">   </span>READY<span class="w">   </span>AGE
+replicaset.apps/rickroller-dd4b47459<span class="w">   </span><span class="m">1</span><span class="w">         </span><span class="m">1</span><span class="w">         </span><span class="m">1</span><span class="w">       </span>25s
+</code></pre></div></p>
+<p>Now, let's see how useful a deployment is. First, let's say there is huge traffic and we need to <strong>scale horizontally</strong>.
+For this, run:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>rickroller<span class="w"> </span>--replicas<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="c1"># or 100, or 0 :)</span>
+</code></pre></div>
+You can achieve the same by editing the deployment directly and changing the <code>spec.replicaCount</code>
+(using e.g. <code>kubectl edit</code> or <code>kubectl apply</code>).</p>
+<p>Let's also test <strong>fault tolerance</strong>. Delete one or more pods and see what happens. For example:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-o<span class="w"> </span>name<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>rickroller<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+</code></pre></div>
+A new pod is spawned immediately to take its place. Note that you can use
+<code>kubectl get pod -w</code> on a terminal if you do not have a UI (<code>-w</code> is for <code>--watch</code>).</p>
+<p>Now, we need to perform an <strong>upgrade</strong>.
+First, ensure you have either the UI opened to the pods view, or type <code>kubectl get pod -w</code>
+on a new terminal window.
+We will simulate an update by adding an environment variable to the pods called <code>BEHIND_PROXY</code>
+(this tells rickroller to honor the <code>X-Forwarded-*</code> headers, if any, which will be useful later):
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>edit<span class="w"> </span>deploy<span class="w"> </span>rickroller
+<span class="c1">## under .spec.template.spec.containers[0], add the following:</span>
+<span class="c1">##   image: ...</span>
+<span class="c1">##   env:</span>
+<span class="c1">##     - name: BEHIND_PROXY</span>
+<span class="c1">##       value: &quot;true&quot;</span>
+<span class="c1">## then save and exit (:wq on vim)</span>
+</code></pre></div></p>
+<p>Or simply use the updated YAML found in <code>kube/env-depl.yaml</code> (ensure you have the
+<code>spec.replicaCount</code> set to 3)!</p>
+<p>When a Deployment is updated, the following steps happen:</p>
+<ol>
+<li>Kubernetes creates a new ReplicaSet with the updated pod template.</li>
+<li>Kubernetes starts scaling down the old ReplicaSet and scaling up the new ReplicaSet,
+   replacing pods one at a time. Only when the new pod is running and ready will it start receiving
+   traffic and the next pod will be upgraded. This is called the <em>rolling upgrade</em> strategy, which is the
+   default for <code>Deployment</code> (see <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy"><code>.spec.strategy.type</code></a>).</li>
+<li>the old ReplicaSet (scaled to 0 pods) stays around to allow for rollbacks in case of issues.</li>
+</ol>
+<p>This process is designed to ensure that the update is rolled out gradually, with minimal disruption to the application, 
+and that the old version of the application can easily be rolled back if necessary.</p>
+<p>Finally, let's say the upgrade didn't go well and we need to <strong>roll back to the previous version</strong>.
+This time, look at the replicasets and run:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w"> </span>deployment/rickroller
+</code></pre></div></p>
+<p>Finally, look at the history by typing:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>rollout<span class="w"> </span><span class="nb">history</span><span class="w"> </span>deployment/rickroller
+</code></pre></div></p>
+<p>Cool, right?</p>
+<details class="note">
+<summary>The pod-template-hash label</summary>
+<p>If you inspect the replicatset, you should see something like:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">      </span><span class="nt">pod-template-hash</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dd4b47459</span><span class="w">  </span><span class="c1"># &lt;- ?</span>
+</code></pre></div>
+This pod template hash is also found in the name of the pods: <code>&lt;name&gt;-&lt;pod-hash&gt;-&lt;random&gt;</code>.
+This label is what allows multiple replicaset to run for the same application.</p>
+</details>
+<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
+<p>Now that we have our pod running and fault tolerant, we need a way to communicate
+with rickroller in a stable manner. With Deployments and ReplicaSets, the pods come and go, so we cannot use their
+IP address or hostname. How? By using a <code>Service</code>.</p>
+<p>A service can be thought of as a receptionist at the front desk of a building.
+Just like a receptionist directs visitors to different departments in the building, a Kubernetes service
+directs network traffic to different pods in a cluster.
+It acts as a single entry point to access a group of pods providing the same service and ensures that traffic is evenly distributed among them.
+The way it directs traffic is by default round-robin, but can be customized to use session affinity or other means.</p>
+<p>There are three types of services:</p>
+<dl>
+<dt>ClusterIP</dt>
+<dd>This is the default type of service and provides a stable IP address that can be used to access a set of pods within the same cluster. It is used for internal communication within the cluster.</dd>
+<dt>NodePort</dt>
+<dd>This type of service exposes the service on a static port on each node in the cluster, allowing external traffic to access the service. It is useful for testing and development purposes.</dd>
+<dt>LoadBalancer</dt>
+<dd>This type of service exposes the service on a load balancer in cloud environments such as AWS or GCP, allowing external traffic to access the service. It is useful for production environments where high availability is required.</dd>
+</dl>
+<p>Let's create a service for the rickroller application. Since Exoscale provides support for load balancers, we can use the <code>loadbalancer</code> type - note 
+that it will take a minute, as Exoscale needs to provision a brand new load balancer (look at the Exoscale console):
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>service<span class="w"> </span>loadbalancer<span class="w"> </span>rickroller<span class="w"> </span>--tcp<span class="o">=</span><span class="m">80</span>:8080<span class="w"> </span><span class="c1"># -o yaml --dry-run=client</span>
+</code></pre></div></p>
+<p>Or use the YAML:
+<div class="highlight"><span class="filename">kube/lb-svc.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LoadBalancer</span>
+<span class="w">  </span><span class="c1"># ↓ to which pod should we redirect traffic</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w">  </span><span class="c1"># service port</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span><span class="w">  </span><span class="c1"># port of the container</span>
+</code></pre></div></p>
+<p>To get the load balancer IP (that you can use in a browser), run the following and look for <em>LoadBalancer Ingress</em>:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>describe<span class="w"> </span>svc<span class="w"> </span>rickroller<span class="w"> </span><span class="c1"># svc is short for service</span>
+</code></pre></div></p>
+<p>To see to which pods the service redirects traffic, use:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>endpoints<span class="w"> </span>rickroller
+</code></pre></div></p>
+<h2 id="ingresses">Ingresses<a class="headerlink" href="#ingresses" title="Permanent link">&para;</a></h2>
+<p>When we set up the cluster, I said we installed the NGINX ingress controller.
+This lets us use only one cloud load balancer for multiple applications thanks to ingresses.</p>
+<p>Ingresses are a way to map a host or a route (e.g. a prefix) to a given service or app.
+The ingress controller is the component behind the load balancer, which is responsible for reacting to those ingresses,
+and for configuring networking properly.
+Without more details, remember that ingresses are great, but do nothing if you haven't installed
+at least one ingress controller.</p>
+<p>To use an ingress, let's change our service above to use a cluster IP instead of a load balancer:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span>svc<span class="w"> </span>rickroller<span class="w"> </span><span class="c1"># delete the old service (may take some time)</span>
+<span class="c1"># use the command below, or change LoadBalancer -&gt; ClusterIP in the YAML above (see kube/svc.yaml)</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>svc<span class="w"> </span>clusterip<span class="w"> </span>rickroller<span class="w"> </span>--tcp<span class="o">=</span><span class="m">80</span>:8080
+</code></pre></div></p>
+<p>Here is how to create an ingress for rickroller, assuming the Nginx ingress controller is used:
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Tell k8s to use the ingress controller</span>
+<span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nginx&quot;</span>
+<span class="w">    </span><span class="c1"># ↓ Annotations to configure nginx</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/use-regex</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/rewrite-target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/$2</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/x-forwarded-prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/rickroller(/|$)(.*)</span>
+<span class="w">            </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prefix</span>
+<span class="w">            </span><span class="nt">backend</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">service</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">                </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="c1"># this is the port of the ClusterIP service</span>
+<span class="w">                  </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+</code></pre></div></p>
+<p>The above ingress tells the Nginx controller to direct incoming traffic with path <code>/rickroller</code> to the
+service rickroller on port 80. Moreover, the annotations ask Nginx to strip the prefix when forwarding
+and to set the <code>X-Forwarded-*</code> annotations.</p>
+<div class="admonition info">
+<p class="admonition-title">Nginx Ingress Controller Overview</p>
+<p><img alt="Nginx Ingress" src="../assets/01-ingress.excalidraw.png" /></p>
+<p>The figure above shows how it works with the SKS cluster (Exoscale) and the Nginx Ingress Controller.</p>
+<p>The Nginx Ingress Controller defines a <code>Service</code> of type <code>LoadBalancer</code>, and thus receives an
+external IP from Exoscale. It then routes to one of the running Nginx pods running the Nginx reverse-proxy.
+The Nginx configuration (viewable in the pods at <code>/etc/nginx/nginx.conf</code>) is updated every time something
+happens with an Ingress.
+In our case, we create an ingress that asks Nginx to route the <code>/rickroller</code> prefix to the rickroller service,
+which knows how to forward it to one of the rickroller pods.</p>
+<p>The user can thus type <code>http://&lt;load-balancer-ip&gt;/rickroller</code> in the browser to get to the rickroller app!</p>
+</div>
+<details class="tip">
+<summary>Have a look at the Nginx configuration</summary>
+<p>If you are curious, you can spawn a shell inside one of the <code>ingress-nginx-controller-xxx</code> pods running in the
+<code>ingress-nginx</code> namespace, and look into the <code>/etc/nginx/nginx.conf</code>:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>ingress-nginx<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>ingress-nginx<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-o<span class="w"> </span>name<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>controller<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span><span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+cat<span class="w"> </span>/etc/nginx/nginx.conf<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-a6<span class="w"> </span>rickroller
+
+<span class="w">    </span>location<span class="w"> </span>~*<span class="w"> </span><span class="s2">&quot;^/rickroller&quot;</span><span class="w"> </span><span class="o">{</span>
+
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$namespace</span><span class="w">      </span><span class="s2">&quot;test&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$ingress_name</span><span class="w">   </span><span class="s2">&quot;roller&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$service_name</span><span class="w">   </span><span class="s2">&quot;roller&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$service_port</span><span class="w">   </span><span class="s2">&quot;80&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$location_path</span><span class="w">  </span><span class="s2">&quot;/rickroller&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="nb">set</span><span class="w"> </span><span class="nv">$global_rate_limit_exceeding</span><span class="w"> </span>n<span class="p">;</span>
+
+<span class="w">        </span>rewrite_by_lua_block<span class="w"> </span><span class="o">{</span>
+<span class="w">            </span>lua_ingress.rewrite<span class="o">({</span>
+<span class="w">                </span><span class="nv">force_ssl_redirect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>false,
+<span class="w">                </span><span class="nv">ssl_redirect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>true,
+<span class="w">    </span>--
+
+<span class="w">        </span><span class="c1"># In case of errors try the next upstream server before returning an error</span>
+<span class="w">        </span>proxy_next_upstream<span class="w">                     </span>error<span class="w"> </span>timeout<span class="p">;</span>
+<span class="w">        </span>proxy_next_upstream_timeout<span class="w">             </span><span class="m">0</span><span class="p">;</span>
+<span class="w">        </span>proxy_next_upstream_tries<span class="w">               </span><span class="m">3</span><span class="p">;</span>
+
+<span class="w">        </span>rewrite<span class="w"> </span><span class="s2">&quot;(?i)/rickroller&quot;</span><span class="w"> </span>/<span class="nv">$2</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span>proxy_set_header<span class="w"> </span>X-Forwarded-Prefix<span class="w"> </span><span class="s2">&quot;/rickroller&quot;</span><span class="p">;</span>
+<span class="w">        </span>proxy_pass<span class="w"> </span>http://upstream_balancer<span class="p">;</span>
+
+<span class="w">        </span>proxy_redirect<span class="w">                          </span>off<span class="p">;</span>
+
+<span class="w">    </span><span class="o">}</span>
+</code></pre></div>
+That's it! A simple Nginx reverse-proxy with a dynamic configuration.</p>
+</details>
+<p>The application needs to support residing behind a reverse proxy (it receives traffic under <code>/</code>, but is reachable under <code>/rickroller</code>).
+This is the case of rickroller, given we tell him to by setting the <code>BEHIND_PROXY</code> environment variable.
+To do so, ensure you are using the <code>kube/depl-update.yaml</code> definition:</p>
+<div class="highlight"><span class="filename">kube/env-depl.yaml</span><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"> </span><span class="c1"># number of desired pods</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"> </span><span class="c1"># &lt;-</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="c1"># template used to create the ReplicaSet the pods</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span><span class="w"> </span><span class="c1"># &lt;-</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">derlin/rickroller:latest</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rickroller</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">          </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BEHIND_PROXY</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Environment variables can also be added through <a href="https://kubernetes.io/docs/concepts/configuration/configmap/"><code>ConfigMaps</code></a>,
+but I will let you discover this by yourself.</p>
+</div>
+<h2 id="recap">Recap'<a class="headerlink" href="#recap" title="Permanent link">&para;</a></h2>
+<p>Kubernetes <strong>Pods</strong> are like regular containers but can have one or more containers sharing the same network stack, hostname, and memory.
+We never directly deploy pods, but use higher levels abstractions such as <strong>Deployments</strong> for stateless applications, and <strong>StatefulSets</strong>
+for stateful apps. Deployments and StatefulSets use <code>ReplicaSet</code> under the hood to scale pods up and down, manage rolling upgrades,
+and implement fault tolerance.</p>
+<p>Since an application can run on multiple pods, and the latter are ephemeral (they can be killed, moved to other nodes, etc),
+we use a <strong>Service</strong> to provide a single point of entry (IP address and hostname).
+The service constantly tracks the pods part of the same application and knows how to redirect traffic.
+Services are usually used internally, but they can be exposed to the outside using a load balancer or a node port.</p>
+<p>Finally, a typical way of accessing applications from the outside is to create an <strong>Ingress</strong>. Ingresses are special constructs that
+do nothing until an ingress controller is installed on the cluster. In our example, we used the Nginx ingress controller, which
+has a load balancer IP and redirects traffic to internal services using Nginx. Whenever an ingress is created or updated, the controller updates the
+Nginx configuration accordingly. The usual features of Nginx are available, with routing based on hostnames, path prefixes, etc.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../00-sks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: The Cluster" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                The Cluster
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../02-helm/" class="md-footer__link md-footer__link--next" aria-label="Next: Helm" rel="next">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Helm
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Lucy Linder @ derlin
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://blog.derlin.ch" target="_blank" rel="noopener" title="blog.derlin.ch" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M455.6 349.2c-45.891-39.09-36.67-77.877-16.095-128.11C475.16 134.04 415.967 34.14 329.93 8.3 237.04-19.6 134.252 24.341 99.677 117.147a180.862 180.862 0 0 0-10.988 73.544c1.733 29.543 14.717 52.97 24.09 80.3 17.2 50.161-28.1 92.743-66.662 117.582-46.806 30.2-36.319 39.857-8.428 41.858 23.378 1.68 44.478-4.548 65.265-15.045 9.2-4.647 40.687-18.931 45.13-28.588-12.184 26.59-36.962 72.702-21.463 102.102 19.1 36.229 67.112-31.77 76.709-45.812 8.591-12.572 42.963-81.279 63.627-46.926 18.865 31.361 8.6 76.391 35.738 104.622 32.854 34.2 51.155-18.312 51.412-44.221.163-16.411-6.1-95.852 29.9-59.944 21.421 21.381 52.905 71.181 88.561 67.023 38.736-4.516-22.123-67.967-28.262-78.695 5.393 4.279 53.665 34.128 53.818 9.52.11-18.789-30.085-34.667-42.524-45.267Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/derlin" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/lucy-linder-4a401726" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://dev.to/derlin" target="_blank" rel="noopener" title="dev.to" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.73 11.93c0 1.72-.02 1.83-.23 2.07-.19.17-.38.23-.76.23l-.51.01-.03-2.27-.02-2.27h.52c.35 0 .6.07.77.21.24.21.26.25.26 2.02M22 7.5v9c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2v-9c0-1.11.89-2 2-2h16c1.11 0 2 .89 2 2M8.93 11.73c-.03-1.84-.05-1.99-.29-2.39-.4-.68-.85-.84-2.36-.84H5v7h1.21c1.33 0 1.89-.17 2.29-.71.41-.53.5-.98.43-3.06m4.19-3.23h-1.48c-1.49 0-1.5 0-1.71.28S9.7 9.21 9.7 12v2.96l.27.27c.25.27.31.27 1.71.27h1.44v-1.19l-1.09-.04-1.1-.03V12.6l.68-.03.66-.04v-1.19h-1.39V9.7h2.24V8.5m5.88.06c0-.06-.3-.06-.66-.06l-.68.06-.59 2.35c-.38 1.48-.62 2.27-.67 2.13-.08-.27-1.14-4.44-1.14-4.49 0-.05-.31-.05-.68-.05h-.69l.41 1.55c.2.87.59 2.28.81 3.15.34 1.35.46 1.65.75 1.94.2.22.45.36.61.36.33 0 .76-.34.9-.73C17.5 14.5 19 8.69 19 8.56Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.b4d07000.min.js"></script>
+      
+    
+  </body>
+</html>
