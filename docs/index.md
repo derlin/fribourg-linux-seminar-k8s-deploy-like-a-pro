@@ -12,8 +12,15 @@ Ready? Let's get started!
 !!! warning "Important"
 
     This website/tutorial has been set up for my presentation at the
-    *24th Fribourg Linux Seminar: Kubernetes and Friends* hosted in Fribourg on **May 11th, 2023**.
+    [24th Fribourg Linux Seminar: Kubernetes and Friends](https://www.meetup.com/fribourg-linux-seminar/events/292354383)
+    hosted in Fribourg on **May 11th, 2023** ([archives](https://fls.isc.heia-fr.ch/archives/)).
     It may be outdated by the time you read it. Find the versions used later in this page.
+
+    Recording of the talk (in French):
+
+    <div align=center>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/93oW5aGz-oo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
 
 ## Kubernetes
 

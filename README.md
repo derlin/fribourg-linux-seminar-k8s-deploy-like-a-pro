@@ -24,6 +24,11 @@ https://community.exoscale.com/documentation/sks) from [Exoscale](https://exosca
 
 The slides of the presentation are in this repo ⮕ [presentation.pdf](presentation.pdf).
 
+Recording of the talk (in French):
+
+[![Recording](http://img.youtube.com/vi/93oW5aGz-oo/0.jpg)](http://www.youtube.com/watch?v=93oW5aGz-oo "A Cool Kids Guide to Kubernetes Deployments")
+
+
 ## Structure
 
 * `terraform` → terraform module to spawn an SKS cluster on Exoscale
